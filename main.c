@@ -37,6 +37,7 @@
 #include "agc_engine.h"
 #include "agc_symtab.h"
 #include "queue.h"
+#include <emscripten.h>
 
 agc_t State;
 #define CORE_SIZE (044 * 02000)
@@ -66,7 +67,7 @@ int main (void)
 
         'readPort' returns the next packet in the output queue
 */
-int advance()
+EMSCRIPTEN_KEEPALIVE int advance()
 {
     int i;    
 
@@ -76,7 +77,7 @@ int advance()
     return 0;
 }
 
-int sendPort(unsigned int port, unsigned int val){
+EMSCRIPTEN_KEEPALIVE  int sendPort(unsigned int port, unsigned int val){
     unsigned char Packet[4];
 
     if (FormIoPacket (port, val, Packet)) 
@@ -84,7 +85,7 @@ int sendPort(unsigned int port, unsigned int val){
     return qsend (&qin, Packet);    
 }
 
-int scanPort(unsigned int mask){
+EMSCRIPTEN_KEEPALIVE  int scanPort(unsigned int mask){
     unsigned char Packet[4];
     int chan, val, bit;    
 
@@ -115,7 +116,7 @@ int readPort(){
    saving backtrace information, which is useful only for a debugger we're not
    building into the code anyway.
 */
-void BacktraceAdd (agc_t *State, int Cause)
+EMSCRIPTEN_KEEPALIVE  void BacktraceAdd (agc_t *State, int Cause)
 {
   // Keep this empty.
 }

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- saved from url=(0038)https://www.svtsim.com/moonjs/agc.html -->
+
 <html lang="en-us"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style data-merge-styles="true"></style>
     
     
-    <title>Online Apollo Guidance Computer Simulator</title>
+    <title>UniGib Online Apollo Guidance Computer Simulator</title>
     <style>
         @font-face {
             font-family: seven;
@@ -116,13 +116,13 @@
             margin: 10px;
         }
     </style>
-    <script type="text/javascript" src="./Online Apollo Guidance Computer Simulator_files/jquery-3.7.1.min.js.download"></script>
+    <script type="text/javascript" src="./js/jquery-3.7.1.min.js"></script>
   </head>
   <body>
 <div style="position: relative; left: 100px; top: 0; width: 760px;">
 <div id="warning" style="width: 740px; border: 2px solid black; display: none; margin: 10px; padding: 5px;">&nbsp;</div>
-<h2>Moonjs: An Online Apollo Guidance Computer (AGC) Simulator</h2>
-<hr><a href="https://www.svtsim.com/moonjs/checklist.html" target="_blank">Launch checklist</a></div>
+<h2>UniGib Online Apollo Guidance Computer (AGC) Simulator</h2>
+<hr><a href="./checklist.html" target="_blank">Launch checklist</a></div>
 <div style="position: relative; left: 0px; top: 0; width: 800px; height: 500px;">
 <div style="position: absolute; left: 100px; top: 0; width: 415px; height: 485px; border: solid black 2px; background-color: #dddddd;">
 <div style="position: absolute; left: 20px; top: 10px; width: 140px; height: 280px; border: solid black 2px;">
@@ -185,7 +185,7 @@
 <div style="position: relative; left: 100px; top: 30px; width: 760px; background-color: #eeeeee;">Moonjs is an online Apollo Guidance Computer (AGC) simulator. It is a port of <a href="http://www.ibiblio.org/apollo/">Virtual AGC</a> by <a href="https://www.svtsim.com/moonjs/info@sandroid.org">Ronald Burkey</a> from C to javascript/<a href="http://asmjs.org/">asm.js</a> using the <a href="https://github.com/kripken/emscripten/wiki">Emscripten compiler</a>.
 <p>AGC was the main computer system of the Apollo program that successfully landed 12 astronauts on Moon. There was one AGC on each of the Apollo Command Modules and another one on each Lunar Module. There was also a second backup computer system called Abort Guidance System (AGS) on the Lunar Modules, which is simulated by Virtual AGC, but not the current version of Moonjs.</p>
 <p>Astronauts interacted with AGC by using DSKY, a combination of 7-segment numerical displays, indicator lights and a simple keypad, which is simulated on this page.</p>
-<div><img src="./Online Apollo Guidance Computer Simulator_files/Apollo_DSKY_interface.svg.png" alt=""></div>
+<div><img src="./Apollo_DSKY_interface.svg.png" alt=""></div>
 <p>The simulated DSKY communicates with a simulated AGC, which in turn runs a copy of Colossus 249, the flight software that flew on the Apollo 9 Command Module. DSKY human interface was built around the concept of <em>Verbs</em> and <em>Nouns</em>. For example, Verb 06 can be used to display the value of near 100 different memory locations selected based on the given Noun.</p>
 <h4>Some Examples Codes:</h4>
 <ul>
@@ -218,19 +218,30 @@ if(!window.console){    // for older IE
         $('#warning').css('display', 'block');
     }
 // ]]></script>
-<script src="./Online Apollo Guidance Computer Simulator_files/agc11.js.download"></script>
+<script src="./js/agc11.js"></script>
 <script type="text/javascript">// <![CDATA[
 "use strict";
 
-    $.get("/cgi-bin/logger.php", {"s": "moonjs", "v": "11", "r": Math.random()});
 
-    // the main interface functions to the emscripten compiled code    
-    var advance = Module.cwrap('advance', 'number', []);                        // int advance()
-    var sendPort = Module.cwrap('sendPort', 'number', ['number', 'number', 'number']);    // int sendPort(port, val, mask)    
-    var scanPort = Module.cwrap('scanPort', 'number', ['number']);              // int scanPort(mask)
-    var readPort = Module.cwrap('scanPort', 'number', []);                      // int readPort()
-    var peek = Module.cwrap('peek', 'number', ['number']);
-    var poke = Module.cwrap('poke', 'number', ['number', 'number']);
+// the main interface functions to the emscripten compiled code
+    var advance = null;
+    var sendPort = null;
+    var scanPort = null;
+    var readPort = null;
+    var peek = null;
+    var poke = null;
+
+    Module.onRuntimeInitialized = function() {
+
+        console.log('Module.onRuntimeInitialized() called');
+        /*advance = Module.cwrap('advance', 'number', []);                        // int advance()
+        sendPort = Module.cwrap('sendPort', 'number', ['number', 'number', 'number']);    // int sendPort(port, val, mask)
+        scanPort = Module.cwrap('scanPort', 'number', ['number']);              // int scanPort(mask)
+        readPort = Module.cwrap('scanPort', 'number', []);                      // int readPort()
+        peek = Module.cwrap('peek', 'number', ['number']);
+        poke = Module.cwrap('poke', 'number', ['number', 'number']);
+        */
+    };
 
     var cpu_time = 0;   // in seconds
 
@@ -364,6 +375,9 @@ if(!window.console){    // for older IE
         function update(){            
             var s = digits.join('');
             var on = (phase>>1) & 3; // to simulate blinking (phase increases by 1 every 100 ms)                                        
+            var effectiveStatus8 = warmImuStatus(status8);
+            //console.log('update: ' + s + ', ' + effectiveStatus8.toString(16) + ', ' + status9.toString(16) + ', ' + status11.toString(16) + ', ' + on);
+
             
             if(flag & 1){   // bit 0 of flag is set, update digits                
                 $('#R1').html(s.slice(6,12).replace(/H/g, '&nbsp;')); // replaced H with space since spaces confuses String.join
@@ -384,12 +398,12 @@ if(!window.console){    // for older IE
             }
     
             if(flag & 2){   // also see http://klabs.org/history/history_docs/mit_docs/1709.pdf section 1.9.3
-                $('#vel').css('background-color', status8 & 0x0004 ? '#ffc200' : '#888888');
-                $('#no_att').css('background-color', status8 & 0x0008 ? '#ffffff' : '#888888');
-                $('#alt').css('background-color', status8 & 0x0010 ? '#ffc200' : '#888888');
-                $('#gimbal_lock').css('background-color', status8 & 0x0020 ? '#ffc200' : '#888888');
-                $('#tracker').css('background-color', status8 & 0x0080 ? '#ffc200' : '#888888');
-                $('#prog').css('background-color', status8 & 0x0100 ? '#ffc200' : '#888888');        
+                $('#vel').css('background-color', effectiveStatus8 & 0x0004 ? '#ffc200' : '#888888');
+                $('#no_att').css('background-color', effectiveStatus8 & 0x0008 ? '#ffffff' : '#888888');
+                $('#alt').css('background-color', effectiveStatus8 & 0x0010 ? '#ffc200' : '#888888');
+                $('#gimbal_lock').css('background-color', effectiveStatus8 & 0x0020 ? '#ffc200' : '#888888');
+                $('#tracker').css('background-color', effectiveStatus8 & 0x0080 ? '#ffc200' : '#888888');
+                $('#prog').css('background-color', effectiveStatus8 & 0x0100 ? '#ffc200' : '#888888');        
             }
 
             if(flag & 4){                
@@ -430,6 +444,8 @@ if(!window.console){    // for older IE
                     $('#met').html(s);
                 }
             }
+            //console.log('tick: ' + phase + ', ' + cpu_time);
+
             return phase++; 
         }
 
@@ -446,6 +462,17 @@ if(!window.console){    // for older IE
         }
     })();   // dsky
 
+
+    var IMU_BOOT_SECONDS = 20;
+    var imuBootUntil = 0;
+
+    function warmImuStatus(status) {
+        if (!imuBootUntil) return status;
+        if ((status & 0x0008) && Date.now() >= imuBootUntil) {
+            return status & ~0x0008;
+        }
+        return status;
+    }
 
     var imu = (function(){  // based on LM_Simulator by Stephan Hotto <stephan.hotto@web.de>
         var CA_ANGLE = 0.043948 * DEG_TO_RAD;
@@ -552,10 +579,10 @@ if(!window.console){    // for older IE
                     var n = floor(abs(dx) / ANGLE_INCR);                       
                     pimu[axis] = adjust(pimu[axis] + sign*ANGLE_INCR*n, 0, 2*PI);
 
-                    var cdu = peek(26+axis);                        // read CDU counter (26 = 0x32 = CDUX)
+                    var cdu = Module._peek(26+axis);                        // read CDU counter (26 = 0x32 = CDUX)
                     cdu = cdu & 0x4000 ? -(cdu ^ 0x7FFF) : cdu;     // converts from ones-complement to twos-complement
                     cdu += sign * n;                                // adds the number of pulses 
-                    poke(26+axis, cdu<0 ? (-cdu) ^ 0x7FFF : cdu);   // converts back to ones-complement and writes the counter
+                    Module._poke(26+axis, cdu<0 ? (-cdu) ^ 0x7FFF : cdu);   // converts back to ones-complement and writes the counter
                                                                  
                     //for(;n>0; n--){                
                     //    sendPort(0x9A+axis, sign>0 ? PCDU : MCDU, 0xFFFF);  // 0x9A = 0232 = 0200 + 032 
@@ -801,10 +828,10 @@ if(!window.console){    // for older IE
                     sendPort(0x9F+axis, MINC, 0xFFFF);
                 }
                 */
-                var p = peek(31+axis);                      // read PIPA counter (31 = 0x37 = PIPAX)
+                var p = Module._peek(31+axis);                      // read PIPA counter (31 = 0x37 = PIPAX)
                 p = p & 0x4000 ? -(p ^ 0x7FFF) : p;         // converts from ones-complement to twos-complement                
                 p += counts;                                // adds the number of pulses                 
-                poke(31+axis, p<0 ? (-p) ^ 0x7FFF : p);
+                Module._poke(31+axis, p<0 ? (-p) ^ 0x7FFF : p);
             }            
         }              
 
@@ -823,21 +850,25 @@ if(!window.console){    // for older IE
 
     
     $('.key').click(function(event){
-        sendPort(13, parseInt(event.target.name), 0x7FFF);  // sends the key to the input channel 13 = 015
+        Module._sendPort(13, parseInt(event.target.name), 0x7FFF);  // sends the key to the input channel 13 = 015
     });    
 
     $('#pro').click(function(event){   
-        //sendPort(282, 0x2000);  // 282 = 0432   note that octal literals are not supported in the strict mode
-        sendPort(26, 0, 0x2000);  // 26 = 032
+        //Module._sendPort(282, 0x2000);  // 282 = 0432   note that octal literals are not supported in the strict mode
+        Module._sendPort(26, 0, 0x2000);  // 26 = 032
 
         setTimeout(function(){  // simulates a keyup event          
-            //sendPort(282, 0x2000);  
-            sendPort(26, 0x2000, 0x2000);   
+            //Module._sendPort(282, 0x2000);  
+            Module._sendPort(26, 0x2000, 0x2000);   
         }, 200);
     });
 
     $('#enable_ISS').click(function(event){
-        sendPort(24, 0, 0x2000);    
+        console.log('Enabling the IMU...');
+        imuBootUntil = Date.now() + IMU_BOOT_SECONDS * 1000;
+        Module._sendPort(24, 0, 0x2000);   
+        console.log('IMU Enabled.');
+        alert("IMU Enabled. You can now use the F/D AI and the IMU readouts.");
     });
 
     var liftoff = false;
@@ -911,11 +942,11 @@ if(!window.console){    // for older IE
             window.alert('Launch is only possible in Major Mode (Prog) 02. See the "Launch checklist".');
             return;
         }
-        sendPort(24, 0x0000, 0x0010);
+        Module._sendPort(24, 0x0000, 0x0010);
         liftoff = true;                
         dsky.liftoff();
         $('#SIC').css('background-color', '#ffc200');
-        $.get("/cgi-bin/logger.php", {"s": "launch", "v": "11", "r": Math.random()});
+        
     });
 
     $('#shutdown').click(function(){
@@ -941,6 +972,7 @@ if(!window.console){    // for older IE
         var i, d, chan, val;
         var mask = 0x00000F01;
 
+        if(!Module._advance || !Module._scanPort || !Module._sendPort || !Module._peek || !Module._poke) return;
         if(paused) return;        
         //var now = Date.now();        
 
@@ -948,8 +980,8 @@ if(!window.console){    // for older IE
         cpu_time += 0.1;
 
         for(i=0; i<10; i++){
-            advance();                  // runs agc engine for 10 ms
-            d = scanPort(mask);         // scan for ports 8-11            
+            Module._advance();                  // runs agc engine for 10 ms
+            d = Module._scanPort(mask);         // scan for ports 8-11
             while(d){
                 chan = d >> 16;         // data returned by scanPort is packed as (chan<<16)+val
                 val = d & 0xffff;       
@@ -973,7 +1005,7 @@ if(!window.console){    // for older IE
                         imu.gyro_fine_align(chan, val);
                         break;
                 }                
-                d = scanPort(mask);
+                d = Module._scanPort(mask);
             }
         }
         

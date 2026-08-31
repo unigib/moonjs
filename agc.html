@@ -293,11 +293,22 @@ DSKY human interface was built around the concept of <i>Verbs</i> and <i>Nouns</
 <script type="text/javascript">
     "use strict";
 
-    // the main interface functions to the emscripten compiled code    
-    var advance = Module.cwrap('advance', 'number', []);                        // int advance()
-    var sendPort = Module.cwrap('sendPort', 'number', ['number', 'number']);    // int sendPort(port, val)    
-    var scanPort = Module.cwrap('scanPort', 'number', ['number']);              // int scanPort(mask)
-    var readPort = Module.cwrap('scanPort', 'number', []);                      // int readPort()
+    // the main interface functions to the emscripten compiled code   
+    
+    
+    // Your cwrap code belongs here
+  
+    Module.onRuntimeInitialized = () => {
+    // Put your line 303 code inside this block
+    
+        console.log('emscripten compiled code is ready to use');
+
+    //var advance = Module.cwrap('advance', 'number', []);                        // int advance()
+    //var sendPort = Module.cwrap('sendPort', 'number', ['number', 'number']);    // int sendPort(port, val)    
+    //var scanPort = Module.cwrap('scanPort', 'number', ['number']);              // int scanPort(mask)
+    //var readPort = Module.cwrap('scanPort', 'number', []);                      // int readPort()
+    
+    };
 
     // A module encapsulating most DSKY related states and functions
     var dsky = (function(){   
@@ -472,16 +483,16 @@ DSKY human interface was built around the concept of <i>Verbs</i> and <i>Nouns</
 
     
     $('.key').click(function(event){
-        sendPort(13, parseInt(event.target.name));  // sends the key to the input channel 13 = 015
+         Module._sendPort(13, parseInt(event.target.name));  // sends the key to the input channel 13 = 015
     });    
 
     $('#pro').click(function(event){   
-        sendPort(282, 0x2000);  // 282 = 0432   note that octal literals are not supported in the strict mode
-        sendPort(26, 0);        // 26 = 032
+        Module._sendPort(282, 0x2000);  // 282 = 0432   note that octal literals are not supported in the strict mode
+         Module.sendPort(26, 0);        // 26 = 032
 
         setTimeout(function(){  // simulates a keyup event          
-            sendPort(282, 0x2000);  
-            sendPort(26, 0x2000);   
+             Module._sendPort(282, 0x2000);  
+            Module._sendPort(26, 0x2000);
         }, 200);
     });
 
@@ -495,8 +506,8 @@ DSKY human interface was built around the concept of <i>Verbs</i> and <i>Nouns</
         dsky.tick();
 
         for(i=0; i<10; i++){
-            advance();                  // runs agc engine for 10 ms
-            d = scanPort(0x00000B00);   // scan for ports 8, 9 and 11
+            Module._advance();                  // runs agc engine for 10 ms
+            d = Module._scanPort(0x00000B00);   // scan for ports 8, 9 and 11
             if(d){
                 dsky.process(d);
             }
