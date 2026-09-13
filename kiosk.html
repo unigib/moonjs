@@ -125,7 +125,7 @@
     <script type="text/javascript" src="./js/jquery-3.7.1.min.js"></script>
   </head>
   <body>
-<div style="position: relative; left: 100px; top: 0; width: 760px;">
+<div style="position: relative; left: 00px; top: 0; width: 1760px;">
 <div id="warning" style="width: 740px; border: 2px solid black; display: none; margin: 10px; padding: 5px;">&nbsp;</div>
 
 
@@ -188,23 +188,6 @@
 <!--    
         <button id="pause">Pause</button>
     --></div>
-<div style="position: relative; left: 100px; top: 30px; width: 760px; background-color: #eeeeee;">Moonjs is an online Apollo Guidance Computer (AGC) simulator. It is a port of <a href="http://www.ibiblio.org/apollo/">Virtual AGC</a> by <a href="https://www.svtsim.com/moonjs/info@sandroid.org">Ronald Burkey</a> from C to javascript/<a href="http://asmjs.org/">asm.js</a> using the <a href="https://github.com/kripken/emscripten/wiki">Emscripten compiler</a>.
-<p>AGC was the main computer system of the Apollo program that successfully landed 12 astronauts on Moon. There was one AGC on each of the Apollo Command Modules and another one on each Lunar Module. There was also a second backup computer system called Abort Guidance System (AGS) on the Lunar Modules, which is simulated by Virtual AGC, but not the current version of Moonjs.</p>
-<p>Astronauts interacted with AGC by using DSKY, a combination of 7-segment numerical displays, indicator lights and a simple keypad, which is simulated on this page.</p>
-<div><img src="./Apollo_DSKY_interface.svg.png" alt=""></div>
-<p>The simulated DSKY communicates with a simulated AGC, which in turn runs a copy of Colossus 249, the flight software that flew on the Apollo 9 Command Module. DSKY human interface was built around the concept of <em>Verbs</em> and <em>Nouns</em>. For example, Verb 06 can be used to display the value of near 100 different memory locations selected based on the given Noun.</p>
-<h4>Some Examples Codes:</h4>
-<ul>
-<li>Test the DSKY lamps (digits and indicators) by entering <button class="tinykey" style="width: 50px;">VERB</button> <button class="tinykey">3</button> <button class="tinykey">5</button> <button class="tinykey" style="width: 50px;">ENTR</button> .</li>
-<li>Try <button class="tinykey" style="width: 50px;">VERB</button> <button class="tinykey">1</button> <button class="tinykey">6</button> <button class="tinykey" style="width: 50px;">NOUN</button> <button class="tinykey">6</button> <button class="tinykey">5</button> <button class="tinykey" style="width: 50px;">ENTR</button> . This command monitors the current time. The lower 5-digit display shows seconds, the middle one minutes and the topmost one hours elapsed since AGC powered up.</li>
-<li>Start program P00, the idle program, by entering <button class="tinykey" style="width: 50px;">VERB</button> <button class="tinykey">3</button> <button class="tinykey">7</button> <button class="tinykey" style="width: 50px;">ENTR</button> <button class="tinykey">0</button> <button class="tinykey">0</button> <button class="tinykey" style="width: 50px;">ENTR</button> .</li>
-<li>Enter <button class="tinykey" style="width: 50px;">VERB</button> <button class="tinykey">9</button> <button class="tinykey">1</button> <button class="tinykey" style="width: 50px;">ENTR</button> . It shows the checksum of the first bank of the fixed memory (the so-called core-ropes in AGC terminology). The fixed memory is divided into 38 banks, each containing 1024 (1K) 15-bits words. The top 5-digit display shows the checksum in octal, which should be either the bank number or its 1-complement (e.g., for bank 3 either a value of 00003 or 77774 is acceptable). The middle row is the bank number and the third row is a <em>bugger word</em> appended to the end of each bank to make the checksum the correct value. By entering <button class="tinykey" style="width: 50px;">VERB</button> <button class="tinykey">3</button> <button class="tinykey">3</button> <button class="tinykey" style="width: 50px;">ENTR</button> or pressing <button class="tinykey" style="width: 50px;">PRO</button> , you can get the statistics for the next bank.</li>
-<li>Let's try some spaceflight related programs! Enter <button class="tinykey" style="width: 50px;">VERB</button> <button class="tinykey">0</button> <button class="tinykey">6</button> <button class="tinykey" style="width: 50px;">NOUN</button> <button class="tinykey">6</button> <button class="tinykey">2</button> <button class="tinykey" style="width: 50px;">ENTR</button> . It shows the current velocity (top row), altitude rate (middle row) and altitude (bottom row). Unfortunately, we are not going to space today, so all three show 00000 and will continue to do so. During an actual launch (or a simulated one), they would update with current values. If instead of Verb 06, we use Verb 16, the same values are shown and updated constantly until a different command is entered. In fact, this program was used during the boost phase of Saturn V launches to allow astronauts monitor the progress of the launch vehicle.</li>
-</ul>
-<p>For many more examples and details about AGC, its programming and operation, two great sources are the excellent <a href="http://www.ibiblio.org/apollo/">Virtual AGC</a> website by Ronald Burkey and "The Apollo guidance computer : architecture and operation" by Frank O'Brien. The Wikipedia <a href="http://en.wikipedia.org/wiki/Apollo_Guidance_Computer">page</a> for AGC also contains lots of useful information and a comprehensive bibliography.</p>
-<h4>Why Javascript?</h4>
-<p>Recent advances in the javascript language - such as optimized engines, ahead-of-time (AOT) compilation, and asm.js - make it possible to write computationally extensive applications in javascript. My previous experience with online javascript-based simulation (<a href="https://www.svtsim.com/moonjs/svtsim.com/svtsim.html">svtsim</a> and <a href="https://www.svtsim.com/moonjs/svtsim.com/hemosim.html">hemosim</a>) was very positive and convinced me of the suitablity of the HTML5/javascript combination in writing portable, easy-to-use simulators. <strong>Moonjs</strong> is the logical next step that uses Emscripten compiler to convert existing C code into asm.js, a highly-optimizable subset of javascript.</p>
-<footer><hr>@2013-2024 Shahriar Iravanian (<a href="mail://siravan@svtsim.com">siravan@svtsim.com</a>)</footer></div>
 <script type="text/javascript">// <![CDATA[
 if(!window.console){    // for older IE
         window.console = {
