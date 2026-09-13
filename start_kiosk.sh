@@ -5,10 +5,11 @@
 # Posted by eddyizm, modified by community. See post 'Timeline' for change history
 # Retrieved 2026-09-13, License - CC BY-SA 4.0
 
-python3 -m http.server 8000 --bind 127.0.0.1 &
+python3 -m http.server 8000  &
 
 
 # 2. Wait 3 seconds for the server to spin up and bind to the port
+echo "Waiting for HTTP server to start..."
 sleep 3
 
 # 3. Launch Chromium in kiosk mode pointing to localhost
