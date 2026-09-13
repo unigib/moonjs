@@ -5,7 +5,7 @@
 # Posted by eddyizm, modified by community. See post 'Timeline' for change history
 # Retrieved 2026-09-13, License - CC BY-SA 4.0
 
-python3 -m http.server 8000  &
+python3 -m http.server 8000 --directory /home/dave/git/moonjs &
 
 
 # 2. Wait 3 seconds for the server to spin up and bind to the port
