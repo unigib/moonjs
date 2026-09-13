@@ -12,5 +12,5 @@ python3 -m http.server 8000 --bind 127.0.0.1 &
 sleep 3
 
 # 3. Launch Chromium in kiosk mode pointing to localhost
-chromium --kiosk --password-store=basic --noerrdialogs --disable-infobars --check-for-update-interval=31536000 http://localhost:8000
+chromium --kiosk --password-store=basic --noerrdialogs --disable-infobars --check-for-update-interval=31536000 http://localhost:8000/kiosk.html
 
