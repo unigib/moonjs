@@ -8,7 +8,7 @@
 
     <!-- This HTML is designed to run on a RPI / RPI 7 Inch Capacitive Screen   -->
 
-    <title>RPI UniGib Online Apollo Guidance Computer Simulator</title>
+    <title>RPI UniGib Online Apollo Guidance Computer Simulator - Kiosk</title>
     <style>
         /* html, body, * { cursor: none !important; }  */
 
@@ -138,13 +138,30 @@
         li {
             margin: 10px;
         }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            /* Prevents scrollbars during scaling */
+        }
+
+        #scalable-container {
+            width: 800px;
+            /* Your base design width */
+            height: 470px;
+            /* Your base design height */
+            transform-origin: top left;
+            /* Scale from the upper-left corner */
+            position: absolute;
+        }
     </style>
     <script type="text/javascript" src="./js/jquery-3.7.1.min.js"></script>
 </head>
 
 <body>
 
-    <div style="position: absolute; left: 0px; top: 0; width: 800px;">
+    <!--  <div  id="scalable-container" style="position: absolute; left: 0px; top: 0; width: 800px;"></div> -->
+    <div id="scalable-container">
 
 
         <div id="oplamps" style="position: relative; left: 0px; top: 0; width: 800px; height: 500px;">
@@ -223,9 +240,10 @@
                         style="left: 280px; top: 115px; font-size: 12px; line-height: 20px;"
                         name="25">KEY<br>REL</button> <button class="key"
                         style="left: 335px; top: 30px; font-size: 12px;" name="28">ENTR</button> <button class="key"
-                        style="left: 335px; top: 85px; font-size: 12px;" name="18">RSET</button></div>
+                        style="left: 335px; top: 85px; font-size: 12px;" name="18">RSET</button>
+                </div>
             </div>
-            <div id="launch" 
+            <div id="launch"
                 style="position: absolute; left: 450px; top: 0; width: 300px; height: 485px; border: solid black 2px; background-color: #dddddd;">
                 <span class="imulabel" style="left: 10px; top: 5px;">ST</span>
                 <div id="st" class="clock" style="left: 50px; top: 5px;">00:01:42</div>
@@ -267,6 +285,27 @@
                     log: function () { }
                 }
             }
+
+            function scalePage() {
+                const container = document.getElementById('scalable-container');
+                const designWidth = 800;
+                const designHeight = 470;
+
+                // Calculate scale ratios for both width and height
+                const scaleX = window.innerWidth / designWidth;
+                const scaleY = window.innerHeight / designHeight;
+
+                // Choose scaleX to fit width, scaleY to fit height, or Math.min to fit both proportionally
+                const scale = Math.min(scaleX, scaleY);
+
+                container.style.transform = `scale(${scale})`;
+            }
+
+            // Run on load and whenever the window resizes
+            window.addEventListener('resize', scalePage);
+            window.addEventListener('DOMContentLoaded', scalePage);
+
+
 
             var Module = {
                 'canvas': document.createElement('canvas') || {},
